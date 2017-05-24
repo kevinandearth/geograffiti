@@ -20,17 +20,16 @@
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
-    <script src="https://bl.ocks.org/mbostock/raw/7ea1dde508cec6d2d95306f92642bc42/versor.js"></script>
 
     <script>
         var canvas =  d3.select("canvas");
         var context = canvas.node().getContext("2d");
-        var projection = d3.geoOrthographic().clipAngle(90);
+        var projection = d3.geoMercator();
         var path = d3.geoPath(projection, context);
         
         var width = 960;
         var height = 600;
-        var scaleZoom = 1;
+        var scaleZoom = 0.5;
 
         var landColor = "#050";
         var waterColor = "#003";
@@ -38,14 +37,32 @@
         var countriesColor = "#0A0";
 
         var land, countries, borders;
-        var water = { type: 'Sphere' };
 
+        canvas.call(d3.zoom()
+            .scaleExtent([1 / 2, 4])
+            .on("zoom", zoomed));
 
-        canvas.call(d3.drag()
-                .on('start', dragstarted)
-                .on('drag', dragged)
-                .on('end', dragended)
-            );
+        //canvas.call(zoom.on("zoom", zoomed));
+
+        //var zoom = d3.zoom()
+            //.translate(projection.translate())
+            //.scale(projection.scale())
+            //.scaleExtent([height, 8 * height])
+            //.on("zoom", zoomed);
+
+        function zoomed() {
+            //projection.translate(d3.event.translate).scale(d3.event.scale);
+             context.save();
+            context.clearRect(0, 0, width, height);
+            context.translate(d3.event.transform.x, d3.event.transform.y);
+            context.scale(d3.event.transform.k, d3.event.transform.k);
+            //drawPoints();
+            render();
+            context.restore();
+
+            //console.log('zoomed');
+            //g.selectAll("path").attr("d", path);
+        } 
 
         d3.json("https://unpkg.com/world-atlas@1/world/110m.json", function(error, world) {
             if (error) throw error;
@@ -55,8 +72,6 @@
             
             countries = topojson.feature(world, world.objects.countries);
             countries.features = countries.features.splice(50, 50);
-
-            drag();
 
             scale();            
         });
@@ -71,14 +86,14 @@
 
             render();
         }
+        
 
         function render() {
             context.clearRect(0, 0, width, height)
 
             // WATER
-            context.beginPath();
-            path(water);
             context.fillStyle = waterColor;
+            context.fillRect(0, 0, width, height)
             context.fill();     
 
             // LAND
@@ -99,24 +114,6 @@
             context.strokeStyle = bordersColor;
             context.stroke();
         }
-
-        function dragstarted() {
-            v0 = versor.cartesian(projection.invert(d3.mouse(this)));
-            r0 = projection.rotate();
-            q0 = versor(r0);
-        }
-
-        function dragged() {
-            var v1 = versor.cartesian(projection.rotate(r0).invert(d3.mouse(this)));
-            var q1 = versor.multiply(q0, versor.delta(v0, v1));
-            var r1 = versor.rotation(q1);
-            projection.rotate(r1);
-            render();
-        }
-
-        function dragended() {
-        }
-
 
         
     </script>
