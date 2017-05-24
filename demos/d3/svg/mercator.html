@@ -33,7 +33,6 @@
         var scaleZoom = 0.5;
 
         var landColor = "#050";
-        var waterColor = "#003";
         var bordersColor = "#060";
         var countriesColor = "#0A0";
 
@@ -43,26 +42,13 @@
             .scaleExtent([1 / 2, 4])
             .on("zoom", zoomed));
 
-        //canvas.call(zoom.on("zoom", zoomed));
-
-        //var zoom = d3.zoom()
-            //.translate(projection.translate())
-            //.scale(projection.scale())
-            //.scaleExtent([height, 8 * height])
-            //.on("zoom", zoomed);
-
         function zoomed() {
-            //projection.translate(d3.event.translate).scale(d3.event.scale);
             context.save();
             context.clearRect(0, 0, width, height);
             context.translate(d3.event.transform.x, d3.event.transform.y);
             context.scale(d3.event.transform.k, d3.event.transform.k);
-            //drawPoints();
             render();
             context.restore();
-
-            //console.log('zoomed');
-            //g.selectAll("path").attr("d", path);
         } 
 
         d3.json("https://unpkg.com/world-atlas@1/world/110m.json", function(error, world) {
