@@ -38,9 +38,11 @@
 
         var land, countries, borders;
 
-        canvas.call(d3.zoom()
-            .scaleExtent([1 / 2, 4])
-            .on("zoom", zoomed));
+        function init2D() {
+            canvas.call(d3.zoom()
+                .scaleExtent([1 / 2, 4])
+                .on("zoom", zoomed));
+        }
 
         function zoomed() {
             context.save();
@@ -60,7 +62,9 @@
             countries = topojson.feature(world, world.objects.countries);
             countries.features = countries.features.splice(50, 50);
 
-            scale();            
+            scale();
+
+            init2D();
         });
 
         function scale() {
